@@ -1,7 +1,6 @@
 package mx.sintelti.cursos.threads;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -12,22 +11,15 @@ public class TestStock {
 
        Long inicio= System.nanoTime();
 
-      //BigDecimal sumaPrecio = new BigDecimal("0");
-
-
        String fileName="/Users/LAP-012/IdeaProjects/Ejercicio threads/src/main/resources/stocks/list.txt";
        List<String> list = Files.readAllLines(Paths.get(fileName));
 
        for (String fil: list){
 
            StockRetriever stockRetriever = new StockRetriever(fil);
-          // BigDecimal precio = stockRetriever.getStockPrice();
-          // sumaPrecio = sumaPrecio.add(precio);
             new Thread(stockRetriever,String.valueOf(list)).start();
 
        }
-
-       // System.out.println("La suma de los precios es: "+sumaPrecio);
 
        Long fin = System.nanoTime();
 
@@ -37,5 +29,4 @@ public class TestStock {
        System.out.println("Tiempo de Ejecucion: "+totalTiempo+" segundos");
 
     }
-
 }

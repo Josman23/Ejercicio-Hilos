@@ -7,26 +7,19 @@ import java.math.BigDecimal;
 
 public class StockRetriever implements Runnable {
 
-    private String Company;
+    private String company;
     static BigDecimal sumaPrecio = new BigDecimal("0");
 
     public StockRetriever(String company) {
-       this.Company = company;
-    }
-
-    public BigDecimal getStockPrice() throws IOException {
-
-        Stock stock = YahooFinance.get(Company);
-        BigDecimal price=stock.getQuote().getPrice();
-        return price;
+       this.company = company;
     }
 
     @Override
     public void run(){
-
         try {
-            BigDecimal precio = getStockPrice();
-            sumaPrecio = sumaPrecio.add(precio);
+            Stock stock = YahooFinance.get(this.company);
+            BigDecimal price=stock.getQuote().getPrice();
+            sumaPrecio = sumaPrecio.add(price);
         }catch (IOException e){
             System.out.println(e);
         }
@@ -34,12 +27,10 @@ public class StockRetriever implements Runnable {
     }
 
     public String getCompany() {
-        return Company;
+        return this.company;
     }
 
     public void setCompany(String company) {
-        Company = company;
+        this.company = company;
     }
-
-
 }
