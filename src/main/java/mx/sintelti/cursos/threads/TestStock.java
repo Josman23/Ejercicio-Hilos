@@ -1,32 +1,59 @@
 package mx.sintelti.cursos.threads;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TestStock {
 
-    public static void main(String[] args) throws IOException {
+    private static volatile BigDecimal totalPrice = new BigDecimal(0);
 
-       Long inicio= System.nanoTime();
+    public static void main(String[] args) {
 
-       String fileName="/Users/LAP-012/IdeaProjects/Ejercicio threads/src/main/resources/stocks/list.txt";
-       List<String> list = Files.readAllLines(Paths.get(fileName));
+        long inicio= System.nanoTime();
 
-       for (String fil: list){
+        String fileName="/Users/LAP-012/IdeaProjects/Ejercicio threads/src/main/resources/stocks/list.txt";
 
-           StockRetriever stockRetriever = new StockRetriever(fil);
-            new Thread(stockRetriever,String.valueOf(list)).start();
+        try{
 
-       }
+            int core = Runtime.getRuntime().availableProcessors();
+            double blockingCoefficiente = 0.9;
+            int poolSize= (int) (core / (1 - blockingCoefficiente));
 
-       Long fin = System.nanoTime();
+            System.out.println("CPU Cores: "+core);
+            System.out.println("CPU Cores: "+poolSize);
 
-       double totalTiempo = (fin - inicio)/1000000000.0;
-       System.out.println("Tiempo Inicio: "+inicio);
-       System.out.println("Tiempo Final: "+fin);
-       System.out.println("Tiempo de Ejecucion: "+totalTiempo+" segundos");
+            List<String> lineas= Files.readAllLines(Paths.get(fileName));
+            Collection<Callable<Object>> tareas = new ArrayList<>();
+            for(String linea: lineas){
+                StockRetriever stockRetriever = new StockRetriever(linea.trim());
+                tareas.add(Executors.callable(stockRetriever));
+            }
+            ExecutorService threadPool= Executors.newFixedThreadPool(poolSize);
+            threadPool.invokeAll(tareas);
+            threadPool.shutdown();
 
+            long fin =System.nanoTime();
+            System.out.println("Tiempo total de ejecucion: "+((fin-inicio)/1000000000.0)+" segundos.");
+
+        }catch (IOException e){
+            System.out.println("Error al manipular archivo");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Total del mercado: "+ totalPrice);
+
+    }
+
+    public static synchronized void addPrice(BigDecimal price){
+        totalPrice=totalPrice.add(price);
     }
 }

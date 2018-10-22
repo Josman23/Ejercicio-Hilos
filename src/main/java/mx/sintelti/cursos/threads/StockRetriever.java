@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 public class StockRetriever implements Runnable {
 
     private String company;
-    static BigDecimal sumaPrecio = new BigDecimal("0");
 
     public StockRetriever(String company) {
        this.company = company;
@@ -17,13 +16,14 @@ public class StockRetriever implements Runnable {
     @Override
     public void run(){
         try {
+
             Stock stock = YahooFinance.get(this.company);
-            BigDecimal price=stock.getQuote().getPrice();
-            sumaPrecio = sumaPrecio.add(price);
+            BigDecimal price = stock.getQuote().getPrice();
+            stock.print();
+            TestStock.addPrice(price);
         }catch (IOException e){
             System.out.println(e);
         }
-        System.out.println("La suma de los precios es: "+sumaPrecio);
     }
 
     public String getCompany() {
